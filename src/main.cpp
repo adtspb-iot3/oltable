@@ -40,7 +40,8 @@ const char* topic_security_on = "oltable/security_on";
 const char* TopicMaxLevel = "oltable/maxLevel";
 const char* TopicMaxLevelTime = "oltable/maxLevelTime";
 const char* Topic_Light = "oltable/light";
-
+const char* msg_motion="oltable/motion";
+const char* TopicLux ="oltable/lux";
 volatile int buttonStatus{};
 volatile bool ir_motion{};
 bool ledStatus{};
@@ -208,6 +209,22 @@ float getLuxs(BH1750 *lightMeter, float &lux){
 		lux = lightMeter->readLightLevel();
 		// Serial.println(lux);
 	return lux;
+}
+//************************************
+ void ir_motion_func(){
+ if(ir_motion){
+    ir_motion = false;
+    if(!irLightOn) {
+      client.publish(msg_motion, "1");
+      irLightOn = true;
+    }
+    tMotion.setTimer();
+		lux = getLuxs(&lightMeter, lux);
+		client.publish(TopicLux, (String(lux)).c_str());
+    // if(lux <= LIGHT_LEVEL_BH){
+    //   light.setStat(StatLed::ON);
+    // }
+  }
 }
 //************************************  
 void fShort(){
